@@ -69,6 +69,3 @@ simulation_step := 0; 			// Initialize simulation step counter
 t1_count := 0;					// Number of T1 transitions
 newf := -1;						// Id of boundary facet - to be updated later
 nfacets := sum(facet, 1);		// Number of facets
-
-
-

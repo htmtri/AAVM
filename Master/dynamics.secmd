@@ -14,7 +14,7 @@ return sign_of_some_number
 /* * Evolver does not have a built-in gaussian random generator, this is my own quick implimentation:
    * Returns member of set with a given mean and standard deviation
    * mean: mean
-   * standard deviation: std_dev 
+   * standard deviation: std_dev
    Returns random number in normal distribution centering on 0.
    ~95% of numbers returned should fall between -2 and 2
    http://stackoverflow.com/questions/75677/converting-a-uniform-distribution-to-a-normal-distribution
@@ -39,13 +39,13 @@ function real randn(real mean, real std_dev)
 //-----------------------------------------------------------------//
 //-----------------------------------------------------------------//
 
-init_method_instance := 
+init_method_instance :=
 {
   local mycom;
   foreach facets ff where not void do
-  { 
+  {
       mycom := sprintf "unset edges ar%g",ff.original;
-      exec mycom;      
+      exec mycom;
       mycom := sprintf "set facet[%g].edge method_instance ar%g",ff.id,ff.original;
       exec mycom;
       mycom := sprintf "unset edges perim%g",ff.original;
@@ -53,17 +53,17 @@ init_method_instance :=
       mycom := sprintf "set facet[%g].edge method_instance perim%g",ff.id,ff.original;
       exec mycom;
   }
-}; 
+};
 
 eq_energy :=
-{ 
+{
   local nn;
   conj_grad on;
   init_method_instance;
-  do {g 1; nn+=1} 
-  while (scale > 1e-10 AND nn < 1000); 
+  do {g 1; nn+=1}
+  while (scale > 1e-10 AND nn < 1000);
   return
-}; 
+};
 
 /* 1, random cell polarization with mean length 1, angle from uniform [0,2pi] */
 initialize_polarization_facet:=
@@ -71,7 +71,7 @@ initialize_polarization_facet:=
     foreach facet ff where not void do
     {
       ff.pol_angle:= random*2*PI;
-    } 
+    }
 };
 
 
@@ -242,7 +242,7 @@ function integer create_protrusion(integer vid, integer fid)
 	};
 
     // Move the cell edge forwards
-    
+
     vertex[vid].x := vertex[vid].x + protrusion_force * dt / viscosity / length_scale * cos(angle);
     vertex[vid].y := vertex[vid].y + protrusion_force * dt / viscosity / length_scale * sin(angle);
 
@@ -311,23 +311,10 @@ update_adhesions :=
 
 };
 
+
 //-----------------------------------------------------------------//
-/* Simulation output */
+/* Define cell center */
 //-----------------------------------------------------------------//
-
-/* Record displacement on the substrate */
-record_displacements :=
-{
-
-	recname := sprintf "output/displacement_%s_%06d.csv", output_name, simulation_step;
-
-	foreach vertex vv where substrate == 1 do
-	{
-		printf "%f, %f\n", vv.x, vv.y >> recname;
-	};
-
-}
-
 
 get_cell_centers :=
 {
@@ -350,31 +337,45 @@ get_cell_centers :=
 	};
 }
 
+
+//-----------------------------------------------------------------//
+/* Simulation output */
+//-----------------------------------------------------------------//
+
+/* Record displacement on the substrate */
+record_substrate_vertices :=
+{
+
+	recname := sprintf "output/substrate_vertices_%s_%06d.csv", output_name, simulation_step;
+
+	foreach vertex vv where substrate == 1 do
+	{
+		printf "%f, %f\n", vv.x, vv.y >> recname;
+	};
+
+}
+
+/* Record cell certices*/
+record_cell_vertices :=
+{
+
+	recname := sprintf "output/cell_vertices_%s_%06d.csv", output_name, simulation_step;
+
+	foreach vertex vv where substrate != 1 do
+	{
+		printf "%f, %f\n", vv.x, vv.y >> recname;
+	};
+
+}
+
 /* Record cell centers */
 record_cell_centers :=
 {
 	recname := sprintf "output/cell_center_%s.csv", output_name;
 	foreach facet ff where void == 0 do
 	{
-		local cx, cy;
-
-		cx := 0;
-		cy := 0;
-
-		//Weight by the length of the edges connected to the vertex
-		foreach ff.edge ee do
-		{
-			cx += ee.length * (ee.vertex[1].x + ee.vertex[2].x) * 0.5;
-			cy += ee.length * (ee.vertex[1].y + ee.vertex[2].y) * 0.5;
-		};
-
-		cx := cx/sum(ff.edge, length);
-		cy := cy/sum(ff.edge, length);
-
-		printf "%f, %f,", cx, cy >> recname;
+		printf "%f, %f\n", ff.center_x, ff.center_y >> recname;
 	};
-	//New line
-	printf "\n" >> recname;
 }
 
 
@@ -386,6 +387,45 @@ record_boundary_vertices :=
 	foreach facet[newf].vertex vv do
 	{
 		printf "%f, %f\n", vv.x, vv.y >> recname;
+	};
+}
+
+
+/* Record substrate vertices force */
+record_substrate_vertex_force :=
+{
+	recname := sprintf "output/substrate_vertices_force_%s_%06d.csv", output_name,
+	simulation_step;
+	
+	foreach vertex vv where substrate == 1 do
+	{
+		printf "%f, %f\n", vv.fx_shape, vv.fy_shape >> recname;
+	};
+}
+
+
+/* Record cell vertices force */
+record_cell_vertex_force :=
+{
+	recname := sprintf "output/cell_vertices_force_%s_%06d.csv", output_name,
+	simulation_step;
+	
+	foreach vertex vv where substrate != 1 do
+	{
+		printf "%f, %f\n", vv.fx_shape, vv.fy_shape >> recname;
+	};
+}
+
+
+/* Record facets force */
+record_facet_force :=
+{
+	recname := sprintf "output/facet_force_%s_%06d.csv", output_name,
+	simulation_step;
+	
+	foreach facet ff do
+	{
+		printf "%f, %f\n", ff.fx_active , ff.fy_active >> recname;	
 	};
 }
 
@@ -424,7 +464,7 @@ try_t1 :=
         vid_1 := ee.vertex[1].id;
         vid_2 := ee.vertex[2].id;
         foreach vertex[vid_1].facets ff where not void do
-          { 
+          {
 			mycom := sprintf "unset edges ar%g",ff.original;
 			exec mycom;
 			mycom := sprintf "set facet[%g].edge method_instance ar%g",ff.id,ff.original;
@@ -435,7 +475,7 @@ try_t1 :=
 			exec mycom;
           };
         foreach vertex[vid_2].facets ff where not void do
-          { 
+          {
 			mycom := sprintf "unset edges ar%g",ff.original;
 			exec mycom;
 			mycom := sprintf "set facet[%g].edge method_instance ar%g",ff.id,ff.original;
@@ -456,15 +496,15 @@ try_t1 :=
 
 //-----------------------------------------------------------------//
 /* Get forces due to shape equilibrium model on each vertex */
-get_shape_forces := 
-{ 
+get_shape_forces :=
+{
   // init_method_instance;
   g;
-  foreach vertex vv  do 
-    {                  
+  foreach vertex vv  do
+    {
       vv.fx_shape := vv.v_force[1];
       vv.fy_shape := vv.v_force[2];
-    } 
+    }
 };
 
 //-----------------------------------------------------------------//
@@ -482,7 +522,7 @@ evolve_polarization_facet:=
 		local void_count;
 		void_count := 0;
 		foreach ff.edge ee do {void_count += sum(ee.facet where void, 1);};
-        
+
         // Polarisation angle can be off by +- pi/2
         ff.pol_angle := ff.pol_angle mod 2*pi;
 
@@ -491,9 +531,9 @@ evolve_polarization_facet:=
 		{
             // Spread out - get cell vertices that are on the gap, move in average angle of the two
             local vid1, vid2, ang1, ang2, ang;
-            
+
             vid1 := -1;
-            
+
             foreach ff.vertex vv do
             {
                 // If its a 3 way junction between two cells and the wound
@@ -502,11 +542,11 @@ evolve_polarization_facet:=
 					if vid1 == -1 then {vid1 := vv.id} else {vid2 := vv.id;};
                 };
             };
-            
+
             // Get angle between the vertices and cell center
             ang1 := atan2(vertex[vid1].y - ff.center_y, vertex[vid1].x - ff.center_x);
             ang2 := atan2(vertex[vid2].y - ff.center_y, vertex[vid2].x - ff.center_x);
-            
+
             // Cell angle is the average of these two angles
             ang := atan2(sin(ang1)+sin(ang2),cos(ang1)+cos(ang2));
 
@@ -586,7 +626,8 @@ move_one :=
 
 	if recording AND simulation_step % record_interval == 0 then
 	{
-		record_displacements;
+		record_substrate_vertices;
+		record_cell_vertices;
 		record_cell_centers;
 		record_boundary_vertices;
 	};
@@ -596,6 +637,13 @@ move_one :=
 	evolve_polarization_facet;
 	update_adhesions;
 
+	if recording AND simulation_step % record_interval == 0 then
+	{
+		record_substrate_vertex_force;
+		record_cell_vertex_force;
+		record_facet_force;
+	};
+	
 	foreach vertex vv where !fixed do
 	{
 		vv.vel_x:= vv.fx_shape + avg(vv.facets,fx_active);
@@ -628,16 +676,15 @@ set_cell_properties:=
   local mycom;
   foreach facet ff where not void do
   {
-  	mycom := sprintf "farea%d.modulus := %f;", ff.id, kappa; 
+  	mycom := sprintf "farea%d.modulus := %f;", ff.id, kappa;
     exec mycom;
-    mycom := sprintf "per%d.modulus := %f;", ff.id, gamma  * length_scale / force_scale; 
+    mycom := sprintf "per%d.modulus := %f;", ff.id, gamma  * length_scale / force_scale;
     exec mycom;
     mycom := sprintf "ten%d.modulus := %f;", ff.id, -2 * gamma  * length_scale / force_scale * pzero;
-    exec mycom; 
+    exec mycom;
   };
 
 
 
 return 0
 }
-

@@ -1,234 +1,30 @@
-// Surface Evolver Script
-// http://facstaff.susqu.edu/brakke/evolver/evolver.html
-// run the script using command "evolver ####.fe"
-
+//Surface Evolver Gardel model only
 
 //PREAMBLE
-// Each cell is specified as a polygon defined by facets/edges/vertices
-STRING   //Using string model (facets here is a planar defined by a chain of edges)
+STRING   // Model type : each cell is specified as a polygon defined by facets/edges/vertices
 SPACE_DIMENSION 2
 volume_method_name "edge_area" // method used to calculate cell areas in string model
 length_method_name "edge_length" // method used to calculate edge lengths in string model
 
 
-// DEFINE VERTEX ATTRIBUTE
 define vertex attribute fx_shape real
 define vertex attribute fy_shape real
+define facet attribute fx_active real
+define facet attribute fy_active real
 define vertex attribute vel_x real
 define vertex attribute vel_y real
+define facet attribute pol_angle real
+define facet attribute void integer			//True is it is an external facet
 define vertex attribute substrate integer	//A vertex in the ECM
 define vertex attribute bindable integer	//Is this within the micro pattern
 define vertex attribute has_focal integer	//Connected to focal adhesion
 define vertex attribute protrusion_vertex integer	//Is this a vertex at the end of a protrusion?
-
-// DEFINE EDGE ATRRIBUTE
 define edge attribute sub_edge integer		//Is this a substrate
 define edge attribute focal integer			//Is this edge a focal adhesion
 define edge attribute protrusion integer		//Is this a protrusion from the cell?
 
-// DEFINE FACET ATTRIBUTE
-define facet attribute fx_active real
-define facet attribute fy_active real
-define facet attribute pol_angle real
-define facet attribute void integer			//True is it is an external facet
 define facet attribute center_x real
 define facet attribute center_y real
-
-
-//ENERGY METHODS
-
-//Substrate energy
-method_instance sub_spring method hooke3_energy
-quantity sub_energy energy function sub_spring.value
-
-//Focal adhesion energy
-method_instance focal_spring method hooke2_energy
-quantity focal_energy energy function focal_spring.value
-
-// Cell energies 
-/* Number of instances must equal number of facets assuming each facet is a cell 
-that undergo energy minimization */	
-
-method_instance ar1 method edge_area
-quantity farea1 energy function (ar1.value-1.000000)^2
-method_instance perim1 method edge_length
-quantity per1  energy function perim1.value^2 modulus 0
-quantity ten1  energy function 1.000000*perim1.value modulus 0
-
-method_instance ar2 method edge_area
-quantity farea2 energy function (ar2.value-1.000000)^2
-method_instance perim2 method edge_length
-quantity per2  energy function perim2.value^2 modulus 0
-quantity ten2  energy function 1.000000*perim2.value modulus 0
-
-method_instance ar3 method edge_area
-quantity farea3 energy function (ar3.value-1.000000)^2
-method_instance perim3 method edge_length
-quantity per3  energy function perim3.value^2 modulus 0
-quantity ten3  energy function 1.000000*perim3.value modulus 0
-
-method_instance ar4 method edge_area
-quantity farea4 energy function (ar4.value-1.000000)^2
-method_instance perim4 method edge_length
-quantity per4  energy function perim4.value^2 modulus 0
-quantity ten4  energy function 1.000000*perim4.value modulus 0
-
-method_instance ar5 method edge_area
-quantity farea5 energy function (ar5.value-1.000000)^2
-method_instance perim5 method edge_length
-quantity per5  energy function perim5.value^2 modulus 0
-quantity ten5  energy function 1.000000*perim5.value modulus 0
-
-method_instance ar6 method edge_area
-quantity farea6 energy function (ar6.value-1.000000)^2
-method_instance perim6 method edge_length
-quantity per6  energy function perim6.value^2 modulus 0
-quantity ten6  energy function 1.000000*perim6.value modulus 0
-
-method_instance ar7 method edge_area
-quantity farea7 energy function (ar7.value-1.000000)^2
-method_instance perim7 method edge_length
-quantity per7  energy function perim7.value^2 modulus 0
-quantity ten7  energy function 1.000000*perim7.value modulus 0
-
-method_instance ar8 method edge_area
-quantity farea8 energy function (ar8.value-1.000000)^2
-method_instance perim8 method edge_length
-quantity per8  energy function perim8.value^2 modulus 0
-quantity ten8  energy function 1.000000*perim8.value modulus 0
-
-method_instance ar9 method edge_area
-quantity farea9 energy function (ar9.value-1.000000)^2
-method_instance perim9 method edge_length
-quantity per9  energy function perim9.value^2 modulus 0
-quantity ten9  energy function 1.000000*perim9.value modulus 0
-
-method_instance ar10 method edge_area
-quantity farea10 energy function (ar10.value-1.000000)^2
-method_instance perim10 method edge_length
-quantity per10  energy function perim10.value^2 modulus 0
-quantity ten10  energy function 1.000000*perim10.value modulus 0
-
-method_instance ar11 method edge_area
-quantity farea11 energy function (ar11.value-1.000000)^2
-method_instance perim11 method edge_length
-quantity per11  energy function perim11.value^2 modulus 0
-quantity ten11  energy function 1.000000*perim11.value modulus 0
-
-method_instance ar12 method edge_area
-quantity farea12 energy function (ar12.value-1.000000)^2
-method_instance perim12 method edge_length
-quantity per12  energy function perim12.value^2 modulus 0
-quantity ten12  energy function 1.000000*perim12.value modulus 0
-
-method_instance ar13 method edge_area
-quantity farea13 energy function (ar13.value-1.000000)^2
-method_instance perim13 method edge_length
-quantity per13  energy function perim13.value^2 modulus 0
-quantity ten13  energy function 1.000000*perim13.value modulus 0
-
-method_instance ar14 method edge_area
-quantity farea14 energy function (ar14.value-1.000000)^2
-method_instance perim14 method edge_length
-quantity per14  energy function perim14.value^2 modulus 0
-quantity ten14  energy function 1.000000*perim14.value modulus 0
-
-method_instance ar15 method edge_area
-quantity farea15 energy function (ar15.value-1.000000)^2
-method_instance perim15 method edge_length
-quantity per15  energy function perim15.value^2 modulus 0
-quantity ten15  energy function 1.000000*perim15.value modulus 0
-
-method_instance ar16 method edge_area
-quantity farea16 energy function (ar16.value-1.000000)^2
-method_instance perim16 method edge_length
-quantity per16  energy function perim16.value^2 modulus 0
-quantity ten16  energy function 1.000000*perim16.value modulus 0
-
-method_instance ar17 method edge_area
-quantity farea17 energy function (ar17.value-1.000000)^2
-method_instance perim17 method edge_length
-quantity per17  energy function perim17.value^2 modulus 0
-quantity ten17  energy function 1.000000*perim17.value modulus 0
-
-method_instance ar18 method edge_area
-quantity farea18 energy function (ar18.value-1.000000)^2
-method_instance perim18 method edge_length
-quantity per18  energy function perim18.value^2 modulus 0
-quantity ten18  energy function 1.000000*perim18.value modulus 0
-
-method_instance ar19 method edge_area
-quantity farea19 energy function (ar19.value-1.000000)^2
-method_instance perim19 method edge_length
-quantity per19  energy function perim19.value^2 modulus 0
-quantity ten19  energy function 1.000000*perim19.value modulus 0
-
-method_instance ar20 method edge_area
-quantity farea20 energy function (ar20.value-1.000000)^2
-method_instance perim20 method edge_length
-quantity per20  energy function perim20.value^2 modulus 0
-quantity ten20  energy function 1.000000*perim20.value modulus 0
-
-method_instance ar21 method edge_area
-quantity farea21 energy function (ar21.value-1.000000)^2
-method_instance perim21 method edge_length
-quantity per21  energy function perim21.value^2 modulus 0
-quantity ten21  energy function 1.000000*perim21.value modulus 0
-
-method_instance ar22 method edge_area
-quantity farea22 energy function (ar22.value-1.000000)^2
-method_instance perim22 method edge_length
-quantity per22  energy function perim22.value^2 modulus 0
-quantity ten22  energy function 1.000000*perim22.value modulus 0
-
-method_instance ar23 method edge_area
-quantity farea23 energy function (ar23.value-1.000000)^2
-method_instance perim23 method edge_length
-quantity per23  energy function perim23.value^2 modulus 0
-quantity ten23  energy function 1.000000*perim23.value modulus 0
-
-method_instance ar24 method edge_area
-quantity farea24 energy function (ar24.value-1.000000)^2
-method_instance perim24 method edge_length
-quantity per24  energy function perim24.value^2 modulus 0
-quantity ten24  energy function 1.000000*perim24.value modulus 0
-
-method_instance ar25 method edge_area
-quantity farea25 energy function (ar25.value-1.000000)^2
-method_instance perim25 method edge_length
-quantity per25  energy function perim25.value^2 modulus 0
-quantity ten25  energy function 1.000000*perim25.value modulus 0
-
-method_instance ar26 method edge_area
-quantity farea26 energy function (ar26.value-1.000000)^2
-method_instance perim26 method edge_length
-quantity per26  energy function perim26.value^2 modulus 0
-quantity ten26  energy function 1.000000*perim26.value modulus 0
-
-method_instance ar27 method edge_area
-quantity farea27 energy function (ar27.value-1.000000)^2
-method_instance perim27 method edge_length
-quantity per27  energy function perim27.value^2 modulus 0
-quantity ten27  energy function 1.000000*perim27.value modulus 0
-
-method_instance ar28 method edge_area
-quantity farea28 energy function (ar28.value-1.000000)^2
-method_instance perim28 method edge_length
-quantity per28  energy function perim28.value^2 modulus 0
-quantity ten28  energy function 1.000000*perim28.value modulus 0
-
-method_instance ar29 method edge_area
-quantity farea29 energy function (ar29.value-1.000000)^2
-method_instance perim29 method edge_length
-quantity per29  energy function perim29.value^2 modulus 0
-quantity ten29  energy function 1.000000*perim29.value modulus 0
-
-method_instance ar30 method edge_area
-quantity farea30 energy function (ar30.value-1.000000)^2
-method_instance perim30 method edge_length
-quantity per30  energy function perim30.value^2 modulus 0
-quantity ten30  energy function 1.000000*perim30.value modulus 0
-
 
 VERTICES
 
@@ -7695,55 +7491,3 @@ while numLeft > 0 do {
 	foreach vertex vv where valence == 2 and substrate == 0 do { delete vv.edge[1]; break};
 	numLeft := sum(vertex where valence == 2 and substrate == 0, 2);
 }
-
-
-//-----------------------------------------------------------------//
-/* INITIALIZE */
-//-----------------------------------------------------------------//
-
-read "parameters.inp";
-read "dynamics.secmd";
-
-
-// Create the micropattern
-init_micropattern;
-
-//Colour substrate
-set edge color ecmCol where sub_edge == 1;
-
-//Set ECM edges that don't have both vertices bindable to grey
-foreach edge ee where sub_edge == 1 do
-{
-	if ee.vertex[1].bindable == 0 OR ee.vertex[2].bindable == 0 then ee.color := grey;
-};
-
-// Set up energy functions
-init_method_instance;
-set_cell_properties;
-initialize_polarization_facet;
-conj_grad off;
-m 0;
-
-// Create a fake facet on the colony border. Allows T1 transitions with only 3 cells on the boundary.
-init_void_facet;
-
-// Relax a bit to start in an energy minimum
-relax_one 200;
-
-// Create focal adhesions and set up spring network energy
-init_focal_adhesion;
-init_sub_energy;
-
-// Start recording
-recording := 1;
-simulation_step := 0;
-
-// Show the simulation
-showq;
-
-// Run the simulation for 10000 time steps
-//move_one 10000;
-move_one 500;
-
-// Close on finish
-quit 0;
