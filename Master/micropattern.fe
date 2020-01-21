@@ -7743,7 +7743,7 @@ showq;
 
 // Run the simulation for 10000 time steps
 //move_one 10000;
-move_one 500;
+move_one 150;
 
 // Close on finish
 quit 0;
